@@ -260,19 +260,23 @@ RNNModel *rnnoise_model_from_filename(const char *filename) {
 }
 
 RNNModel *rnnoise_model_from_file(FILE *f) {
-  if (f == NULL) return NULL;
   RNNModel *model;
+  long sz;
+
+  if (f == NULL) return NULL;
+
   model = calloc(1, sizeof(*model));
   if (model == NULL) return NULL;
   
   if (fseek(f, 0, SEEK_END) != 0) goto cleanup;
-  long sz = ftell(f);
+  sz = ftell(f);
   if (sz < 0 || sz > INT_MAX) goto cleanup;
   if (fseek(f, 0, SEEK_SET) != 0) goto cleanup;
 
   model->blob_len = (int)sz;
-  // malloc(0) is implementation-defined
+  /* malloc(0) is implementation-defined */
   if (sz == 0) goto cleanup;
+
   model->blob = malloc(model->blob_len);
   if (model->blob == NULL) goto cleanup;
   if (fread(model->blob, model->blob_len, 1, f) != 1) goto cleanup;
